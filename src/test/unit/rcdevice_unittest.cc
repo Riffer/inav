@@ -63,16 +63,24 @@ extern "C" {
     extern bool isButtonPressed;
     extern bool rcdeviceInMenu;
     extern rcdeviceWaitingResponseQueue watingResponseQueue;
+<<<<<<< HEAD:src/test/unit/rcdevice_unittest.cc
+=======
+    // PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG, 0);
+>>>>>>> dee25b005... fix rcsplit telemetry control:src/test/unit/rcdevice_unittest.cc
     bool unitTestIsSwitchActivited(boxId_e boxId)
     {
         uint8_t adjustBoxID = boxId - BOXCAMERA1;
         rcdeviceSwitchState_s switchState = switchStates[adjustBoxID];
         return switchState.isActivated;
     }
+<<<<<<< HEAD:src/test/unit/rcdevice_unittest.cc
     int16_t rxGetChannelValue(unsigned ch)
     {
         return rcData[ch];
     }
+=======
+
+>>>>>>> dee25b005... fix rcsplit telemetry control:src/test/unit/rcdevice_unittest.cc
 
     uint32_t millis(void);
     int minTimeout = 180;
