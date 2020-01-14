@@ -150,9 +150,9 @@ typedef struct {
     rcdeviceResponseCallback parseFunc;
 } rcdeviceWaitingResponseQueue;
 
-<<<<<<< HEAD
-=======
 typedef struct rcdeviceConfig_s {
+    uint8_t initDeviceAttempts;
+    uint16_t initDeviceAttemptInterval;
     // sometimes FC can't get featureInfo from devie(still no idea), so user can set it manaually.
     uint16_t feature;
     uint8_t protocolVersion;
@@ -160,7 +160,6 @@ typedef struct rcdeviceConfig_s {
 
 PG_DECLARE(rcdeviceConfig_t, rcdeviceConfig);
 
->>>>>>> dee25b005... fix rcsplit telemetry control
 void runcamDeviceInit(runcamDevice_t *device);
 void rcdeviceReceive(timeUs_t currentTimeUs);
 

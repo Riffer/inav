@@ -2077,12 +2077,20 @@ groups:
           field: topics
           min: 0,
           max: UINT32_MAX
-          
+ 
   - name: PG_RCDEVICE_CONFIG
     type: rcdeviceConfig_t
     headers: ["io/rcdevice.h"]
     condition: USE_RCDEVICE
     members:
+      - name: rcdevice_init_attempts
+        field: initDeviceAttempts
+        min: 1
+        max: 10
+      - name: rcdevice_init_attempt_interval
+        field: initDeviceAttemptInterval
+        min: 1000
+        max: 5000
       - name: rcdevice_protocol_version
         field: protocolVersion
         min: 0

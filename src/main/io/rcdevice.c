@@ -53,8 +53,6 @@ static runcamDeviceExpectedResponseLength_t expectedResponsesLength[] = {
 rcdeviceWaitingResponseQueue watingResponseQueue;
 static uint8_t recvBuf[RCDEVICE_PROTOCOL_MAX_PACKET_SIZE]; // all the response contexts using same recv buffer
 
-<<<<<<< HEAD
-=======
 PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG, 0);
 
 void pgResetFn_rcdeviceConfig(rcdeviceConfig_t *rcdeviceConfig)
@@ -63,7 +61,6 @@ void pgResetFn_rcdeviceConfig(rcdeviceConfig_t *rcdeviceConfig)
     rcdeviceConfig->protocolVersion = 0;
 }
 
->>>>>>> dee25b005... fix rcsplit telemetry control
 static uint8_t runcamDeviceGetRespLen(uint8_t command)
 {
     for (unsigned int i = 0; i < ARRAYLEN(expectedResponsesLength); i++) {
@@ -239,11 +236,7 @@ static void runcamSplitSendCommand(runcamDevice_t *device, uint8_t argument)
     serialWriteBuf(device->serialPort, uart_buffer, 5);
 }
 
-<<<<<<< HEAD
 static void runcamDeviceSendV1Initialize(runcamDevice_t *device)
-=======
-static void runcamDevieSendV1Initialize(runcamDevice_t *device)
->>>>>>> dee25b005... fix rcsplit telemetry control
 {
     runcamDeviceFlushRxBuffer(device);
 
@@ -266,11 +259,7 @@ static void runcamDevieSendV1Initialize(runcamDevice_t *device)
 static void runcamDeviceParseV2DeviceInfo(rcdeviceResponseParsingContext_t *ctx)
 {
     if (ctx->result != RCDEVICE_RESP_SUCCESS) {
-<<<<<<< HEAD
         runcamDeviceSendV1Initialize(ctx->device);
-=======
-        runcamDevieSendV1Initialize(ctx->device);
->>>>>>> dee25b005... fix rcsplit telemetry control
         return;
     }
 
@@ -299,12 +288,7 @@ void runcamDeviceInit(runcamDevice_t *device)
     serialPortConfig_t *portConfig = findSerialPortConfig(portID);
     if (portConfig != NULL) {
         device->serialPort = openSerialPort(portConfig->identifier, portID, NULL, NULL, baudRates[BAUD_115200], MODE_RXTX, SERIAL_NOT_INVERTED);
-<<<<<<< HEAD
-        // device->info.protocolVersion = rcdeviceConfig()->protocolVersion;
-        device->info.protocolVersion = RCDEVICE_PROTOCOL_VERSION_1_0;
-=======
         device->info.protocolVersion = rcdeviceConfig()->protocolVersion;
->>>>>>> dee25b005... fix rcsplit telemetry control
         if (device->serialPort != NULL) {
             runcamDeviceGetDeviceInfo(device);
         }
