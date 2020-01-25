@@ -288,7 +288,8 @@ void runcamDeviceInit(runcamDevice_t *device)
     serialPortConfig_t *portConfig = findSerialPortConfig(portID);
     if (portConfig != NULL) {
         device->serialPort = openSerialPort(portConfig->identifier, portID, NULL, NULL, baudRates[BAUD_115200], MODE_RXTX, SERIAL_NOT_INVERTED);
-        device->info.protocolVersion = rcdeviceConfig()->protocolVersion;
+        //device->info.protocolVersion = rcdeviceConfig()->protocolVersion;
+		device->info.protocolVersion = RCDEVICE_PROTOCOL_VERSION_1_0;
         if (device->serialPort != NULL) {
             runcamDeviceGetDeviceInfo(device);
         }

@@ -42,5 +42,8 @@ void rcdeviceInit(void);
 void rcdeviceUpdate(timeUs_t currentTimeUs);
 
 bool rcdeviceIsEnabled(void);
+int rcdeviceGetFeatures(void);
+int rcdeviceGetProtocolVersion(void);
+bool rcdeviceGetIsReady(void);
 
 void rcdeviceSend5KeyOSDCableSimualtionEvent(rcdeviceCamSimulationKeyEvent_e key);

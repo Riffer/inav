@@ -90,6 +90,7 @@ extern uint8_t __config_end;
 #include "io/ledstrip.h"
 #include "io/osd.h"
 #include "io/serial.h"
+#include "io/rcdevice_cam.h"
 
 #include "navigation/navigation.h"
 #include "navigation/navigation_private.h"
@@ -2860,6 +2861,13 @@ static void cliStatus(char *cmdline)
 
     char buf[MAX(FORMATTED_DATE_TIME_BUFSIZE, SETTING_MAX_NAME_LENGTH)];
     dateTime_t dt;
+
+#ifdef USE_RCDEVICE
+    cliPrintLinef("RunCam Device:");
+    cliPrintLinef("Features: %d ", rcdeviceGetFeatures());
+    cliPrintLinef("isReady: %s ", rcdeviceGetIsReady() ? "true" : "false");
+    cliPrintLinef("protocol: %d ", rcdeviceGetProtocolVersion());    
+#endif
 
     cliPrintLinef("System Uptime: %d seconds", millis() / 1000);
     rtcGetDateTime(&dt);

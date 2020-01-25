@@ -39,12 +39,6 @@
 #define IS_LO(X) (rxGetChannelValue(X) < FIVE_KEY_CABLE_JOYSTICK_MIN)
 #define IS_MID(X) (rxGetChannelValue(X) > FIVE_KEY_CABLE_JOYSTICK_MID_START && rxGetChannelValue(X) < FIVE_KEY_CABLE_JOYSTICK_MID_END)
 
-/* ----
-#define IS_HI(X) (rcData[X] > FIVE_KEY_CABLE_JOYSTICK_MAX)
-#define IS_LO(X) (rcData[X] < FIVE_KEY_CABLE_JOYSTICK_MIN)
-#define IS_MID(X) (rcData[X] > FIVE_KEY_CABLE_JOYSTICK_MID_START && rcData[X] < FIVE_KEY_CABLE_JOYSTICK_MID_END)
---- */
-
 static runcamDevice_t runcamDevice;
 runcamDevice_t *camDevice = &runcamDevice;
 rcdeviceSwitchState_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
@@ -52,11 +46,10 @@ bool rcdeviceInMenu = false;
 bool isButtonPressed = false;
 bool waitingDeviceResponse = false;
 
-
-
 static bool isFeatureSupported(uint8_t feature)
 {
     if (camDevice->info.features & feature || rcdeviceConfig()->feature & feature) {
+    //if (camDevice->info.features & feature) {	
         return true;
     }
 
@@ -67,6 +60,21 @@ bool rcdeviceIsEnabled(void)
 {
     return camDevice->serialPort != NULL;
 }
+
+int rcdeviceGetFeatures(void)
+{
+    return camDevice->info.features;}
+
+int rcdeviceGetProtocolVersion(void)
+{
+    return camDevice->info.protocolVersion;
+}
+
+bool rcdeviceGetIsReady(void)
+{
+    return camDevice->isReady;
+}
+
 
 static void rcdeviceCameraControlProcess(void)
 {
