@@ -112,6 +112,11 @@ typedef struct runcamDevice_s {
     uint8_t buffer[RCDEVICE_PROTOCOL_MAX_PACKET_SIZE];
     runcamDeviceInfo_t info;
     bool isReady;
+    bool isStarted;
+    int parsedBy;
+    int resultCode;
+    bool timedout;
+    int retried;
 } runcamDevice_t;
 
 #define MAX_WAITING_RESPONSES 2
@@ -151,11 +156,11 @@ typedef struct {
 } rcdeviceWaitingResponseQueue;
 
 typedef struct rcdeviceConfig_s {
-    uint8_t initDeviceAttempts;
-    uint16_t initDeviceAttemptInterval;
+    //uint8_t initDeviceAttempts;
+    //uint16_t initDeviceAttemptInterval;
     // sometimes FC can't get featureInfo from devie(still no idea), so user can set it manaually.
     uint16_t feature;
-    uint8_t protocolVersion;
+    //uint8_t protocolVersion;
 } rcdeviceConfig_t;
 
 PG_DECLARE(rcdeviceConfig_t, rcdeviceConfig);

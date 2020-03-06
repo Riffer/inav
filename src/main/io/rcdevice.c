@@ -35,8 +35,8 @@
 
 #ifdef USE_RCDEVICE
 
-#define RCDEVICE_INIT_DEVICE_ATTEMPTS 6
-#define RCDEVICE_INIT_DEVICE_ATTEMPT_INTERVAL 1000
+#define RCDEVICE_INIT_DEVICE_ATTEMPTS 30
+#define RCDEVICE_INIT_DEVICE_ATTEMPT_INTERVAL 4000
 
 typedef struct runcamDeviceExpectedResponseLength_s {
     uint8_t command;
@@ -58,7 +58,7 @@ PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG, 
 void pgResetFn_rcdeviceConfig(rcdeviceConfig_t *rcdeviceConfig)
 {
     rcdeviceConfig->feature = 0;
-    rcdeviceConfig->protocolVersion = 0;
+    //rcdeviceConfig->protocolVersion = 0;
 }
 
 static uint8_t runcamDeviceGetRespLen(uint8_t command)
@@ -161,7 +161,7 @@ static void runcamDeviceSendPacket(runcamDevice_t *device, uint8_t command, uint
 // a common way to send a packet to device, and get response from the device.
 static void runcamDeviceSendRequestAndWaitingResp(runcamDevice_t *device, uint8_t commandID, uint8_t *paramData, uint8_t paramDataLen, timeMs_t tiemout, int maxRetryTimes, void *userInfo, rcdeviceResponseCallback parseFunc)
 {
-    // runcamDeviceFlushRxBuffer(device);
+    //runcamDeviceFlushRxBuffer(device);
 
     rcdeviceResponseParsingContext_t responseCtx;
     memset(&responseCtx, 0, sizeof(rcdeviceResponseParsingContext_t));
@@ -187,11 +187,17 @@ static void runcamDeviceSendRequestAndWaitingResp(runcamDevice_t *device, uint8_
 
 static void runcamDeviceParseV1DeviceInfo(rcdeviceResponseParsingContext_t *ctx)
 {
+    runcamDevice_t *device = ctx->device;
+ 
+    device->resultCode = ctx->result;
+    device->parsedBy = 1;
+    device->timedout = (ctx->timeout > ctx->timeoutTimestamp);
+
     if (ctx->result != RCDEVICE_RESP_SUCCESS) {
         return;
     }
 
-    runcamDevice_t *device = ctx->device;
+    //runcamDevice_t *device = ctx->device;
     device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
     device->info.features = RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON | RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON | RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE;
     device->isReady = true;
@@ -239,7 +245,7 @@ static void runcamSplitSendCommand(runcamDevice_t *device, uint8_t argument)
 static void runcamDeviceSendV1Initialize(runcamDevice_t *device)
 {
     runcamDeviceFlushRxBuffer(device);
-
+ 
     rcdeviceResponseParsingContext_t responseCtx;
     memset(&responseCtx, 0, sizeof(rcdeviceResponseParsingContext_t));
     responseCtx.recvBuf = recvBuf;
@@ -258,12 +264,16 @@ static void runcamDeviceSendV1Initialize(runcamDevice_t *device)
 
 static void runcamDeviceParseV2DeviceInfo(rcdeviceResponseParsingContext_t *ctx)
 {
+    runcamDevice_t *device = ctx->device;
+    device->resultCode = ctx->result;
+    
     if (ctx->result != RCDEVICE_RESP_SUCCESS) {
         runcamDeviceSendV1Initialize(ctx->device);
         return;
     }
+    device->parsedBy = 2; 
 
-    runcamDevice_t *device = ctx->device;
+    //runcamDevice_t *device = ctx->device;
     device->info.protocolVersion = ctx->recvBuf[1];
 
     uint8_t featureLowBits = ctx->recvBuf[2];
@@ -276,6 +286,8 @@ static void runcamDeviceParseV2DeviceInfo(rcdeviceResponseParsingContext_t *ctx)
 // definition of runcamDeviceInfo_t to know more)
 static void runcamDeviceGetDeviceInfo(runcamDevice_t *device)
 {
+    device->isStarted = true;
+    runcamDeviceFlushRxBuffer(device);
     runcamDeviceSendRequestAndWaitingResp(device, RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO, NULL, 0, RCDEVICE_INIT_DEVICE_ATTEMPT_INTERVAL, RCDEVICE_INIT_DEVICE_ATTEMPTS, NULL, runcamDeviceParseV2DeviceInfo);
 }
 
@@ -284,6 +296,8 @@ static void runcamDeviceGetDeviceInfo(runcamDevice_t *device)
 void runcamDeviceInit(runcamDevice_t *device)
 {
     device->isReady = false;
+    device->parsedBy = 0;
+    device->isStarted = false;
     serialPortFunction_e portID = FUNCTION_RCDEVICE;
     serialPortConfig_t *portConfig = findSerialPortConfig(portID);
     if (portConfig != NULL) {
@@ -345,6 +359,8 @@ static rcdeviceResponseParsingContext_t* getWaitingResponse(timeMs_t currentTime
 {
     rcdeviceResponseParsingContext_t *respCtx = rcdeviceRespCtxQueuePeekFront(&watingResponseQueue);
     while (respCtx != NULL && respCtx->timeoutTimestamp != 0 && currentTimeMs > respCtx->timeoutTimestamp) {
+        respCtx->device->retried += 1;
+
         if (respCtx->maxRetryTimes > 0) {
             if (respCtx->protocolVersion == RCDEVICE_PROTOCOL_VERSION_1_0) {
                 runcamDeviceSendPacket(respCtx->device, respCtx->command, respCtx->paramData, respCtx->paramDataLen);

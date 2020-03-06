@@ -42,6 +42,12 @@ void rcdeviceInit(void);
 void rcdeviceUpdate(timeUs_t currentTimeUs);
 
 bool rcdeviceIsEnabled(void);
+
+bool rcdeviceIsStarted(void);
+int rcdeviceParsedBy(void);
+int rcdeviceResultCode(void);
+int rcdeviceRetried(void);
+bool rcdeviceIsTimedOut(void);
 int rcdeviceGetFeatures(void);
 int rcdeviceGetProtocolVersion(void);
 bool rcdeviceGetIsReady(void);

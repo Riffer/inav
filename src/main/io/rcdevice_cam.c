@@ -61,6 +61,31 @@ bool rcdeviceIsEnabled(void)
     return camDevice->serialPort != NULL;
 }
 
+bool rcdeviceIsStarted(void)
+{
+    return camDevice->isStarted;
+}
+
+int rcdeviceParsedBy(void)
+{
+    return camDevice->parsedBy;
+}
+
+int rcdeviceRetried(void)
+{
+    return camDevice->retried;
+}
+
+int rcdeviceResultCode(void)
+{
+    return camDevice->resultCode;
+}
+
+bool rcdeviceIsTimedOut(void)
+{
+    return camDevice->timedout;
+}
+
 int rcdeviceGetFeatures(void)
 {
     return camDevice->info.features;}

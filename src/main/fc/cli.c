@@ -2855,6 +2855,36 @@ static const char * getBatteryStateString(void)
     return batteryStateStrings[getBatteryState()];
 }
 
+#ifdef USE_RCDEVICE
+static void printRuncamStatus(void)
+{
+    cliPrintLinef("RC Device:");
+    cliPrintLinef("IsStarted: %s",rcdeviceIsStarted() ? "true" :"false");
+    cliPrintLinef("parsedby: %d", rcdeviceParsedBy());
+    cliPrintLinef("ResultCode: %d", rcdeviceResultCode());
+    cliPrintLinef("Retried: %d", rcdeviceRetried());;
+    cliPrintLinef("TimeOut %s", rcdeviceIsTimedOut() ? "true" : "false");
+
+    cliPrintLinef("isEnabled: %s ", rcdeviceIsEnabled() ? "true" : "false");
+    cliPrintLinef("features: %d ", rcdeviceGetFeatures());
+    cliPrintLinef("isReady: %s ", rcdeviceGetIsReady() ? "true" : "false");
+    cliPrintLinef("protocol: %d ", rcdeviceGetProtocolVersion());    
+}
+
+static void cliRuncamStatus(char *cmdline)
+{
+    const char *options;
+    if ((options = checkCommand(cmdline, "init"))) {
+        rcdeviceInit();
+        cliPrintLinef("initializing...");
+        cliPrintLinef("");
+    }
+
+    printRuncamStatus();
+} 
+
+#endif
+
 static void cliStatus(char *cmdline)
 {
     UNUSED(cmdline);
@@ -2863,11 +2893,8 @@ static void cliStatus(char *cmdline)
     dateTime_t dt;
 
 #ifdef USE_RCDEVICE
-    cliPrintLinef("RunCam Device:");
-    cliPrintLinef("Features: %d ", rcdeviceGetFeatures());
-    cliPrintLinef("isReady: %s ", rcdeviceGetIsReady() ? "true" : "false");
-    cliPrintLinef("protocol: %d ", rcdeviceGetProtocolVersion());    
-#endif
+    printRuncamStatus();
+ #endif
 
     cliPrintLinef("System Uptime: %d seconds", millis() / 1000);
     rtcGetDateTime(&dt);
@@ -3375,6 +3402,9 @@ const clicmd_t cmdTable[] = {
         "[<index>]", cliBatteryProfile),
 #if !defined(SKIP_TASK_STATISTICS) && !defined(SKIP_CLI_RESOURCES)
     CLI_COMMAND_DEF("resource", "view currently used resources", NULL, cliResource),
+#endif
+#ifdef USE_RCDEVICE
+    CLI_COMMAND_DEF("runcam_status", "view device status", "[init]", cliRuncamStatus),
 #endif
     CLI_COMMAND_DEF("rxrange", "configure rx channel ranges", NULL, cliRxRange),
     CLI_COMMAND_DEF("save", "save and reboot", NULL, cliSave),
